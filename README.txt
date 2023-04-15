@@ -1,18 +1,3 @@
-                                                                                                                                                                                                                    
-                                 ,,          ,,                                                                               ,,                                                        ,,                          
-`7MMM.     ,MMF'               `7MM          db                          `7MMF'                                               db                           `7MM"""Mq.                   db                    mm    
-  MMMb    dPMM                   MM                                        MM                                                                                MM   `MM.                                        MM    
-  M YM   ,M MM   ,6"Yb.  ,p6"bo  MMpMMMb.  `7MM  `7MMpMMMb.  .gP"Ya        MM         .gP"Ya   ,6"Yb.  `7Mb,od8 `7MMpMMMb.  `7MM  `7MMpMMMb.  .P"Ybmmm       MM   ,M9 `7Mb,od8 ,pW"Wq.`7MM  .gP"Ya   ,p6"bo mmMMmm  
-  M  Mb  M' MM  8)   MM 6M'  OO  MM    MM    MM    MM    MM ,M'   Yb       MM        ,M'   Yb 8)   MM    MM' "'   MM    MM    MM    MM    MM :MI  I8         MMmmdM9    MM' "'6W'   `Wb MM ,M'   Yb 6M'  OO   MM    
-  M  YM.P'  MM   ,pm9MM 8M       MM    MM    MM    MM    MM 8M""""""       MM      , 8M""""""  ,pm9MM    MM       MM    MM    MM    MM    MM  WmmmP"         MM         MM    8M     M8 MM 8M"""""" 8M        MM    
-  M  `YM'   MM  8M   MM YM.    , MM    MM    MM    MM    MM YM.    ,       MM     ,M YM.    , 8M   MM    MM       MM    MM    MM    MM    MM 8M              MM         MM    YA.   ,A9 MM YM.    , YM.    ,  MM    
-.JML. `'  .JMML.`Moo9^Yo.YMbmd'.JMML  JMML..JMML..JMML  JMML.`Mbmmd'     .JMMmmmmMMM  `Mbmmd' `Moo9^Yo..JMML.   .JMML  JMML..JMML..JMML  JMML.YMMMMMb      .JMML.     .JMML.   `Ybmd9'  MM  `Mbmmd'  YMbmd'   `Mbmo 
-                                                                                                                                             6'     dP                               QO MP                          
-                                                                                                                                             Ybmmmd'                                 `bmP                           
-====================================================================================================================================================================================================================
-/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
-====================================================================================================================================================================================================================
-
 ====================================
 **	Machine Learning Classifiers  **
 ====================================
@@ -102,7 +87,6 @@ The dataset consists of two subfolders: occupied and unoccupied. Each subfolder 
 **  Author  **
 =============
 Aiden Parker
-University Handle - 24631698
 
 Date Last Modified
 ------------------
