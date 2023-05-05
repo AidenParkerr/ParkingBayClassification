@@ -1,5 +1,6 @@
 from keras.preprocessing.image import ImageDataGenerator
 from HelperFiles.ImagePreprocessor import ImagePreProcessing
+from pathlib import Path
 
 import numpy as np
 import cv2
@@ -33,31 +34,32 @@ class HelperClass():
         ------
         ValueError: If the specified directory does not exist or does not contain any subfolders.
         """
+
+        directory = Path(directory)
         # Check if the directory exists
-        if not os.path.exists(directory):
+        if not directory.exists():
             raise ValueError(
                 'The directory `{}` does not exist.'.format(directory))
 
-        subfolders = [
-            f.lower() for f in os.listdir(directory) if os.path.isdir(
-                os.path.join(
-                    directory, f)) and (
-                f.lower() == 'occupied' or f.lower() == 'unoccupied')]
+        subfolders = []
+        for folder in directory.iterdir():
+            folder_name = str(folder.name).lower()
+            if folder.is_dir() and folder_name == 'occupied' or folder_name == 'unoccupied':
+                subfolders.append(folder)
 
         # Raise ValueError if there are no subfolders
         if not subfolders:
             raise ValueError(
-                f"Found unexpected sub-directories.Expected `occupied` and `unoccupied in `{directory}`.")
+                f"Found unexpected sub-directories. Expected 'occupied' and 'unoccupied' in `{directory}`.")
 
         images, labels = [], []
         print('Loading Image Data from `{}`..'.format(directory))
-        for folder in subfolders:
+        for f in subfolders:
             # Assign a label of 1 if the folder is named 'occupied', otherwise
             # 0
-            label = 1 if folder == 'occupied' else 0
-            folder_path = os.path.join(directory, folder)
-            for filename in os.listdir(folder_path):
-                filepath = os.path.join(folder_path, filename)
+            label = 1 if f.name == 'occupied' else 0
+            for filename in sorted(f.iterdir()):
+                filepath = str(f / filename)
                 image = cv2.imread(filepath)
                 if image is None:
                     print(f'Failed to read image `{filepath}`. Skiping..')
@@ -105,40 +107,35 @@ class HelperClass():
 
         return preprocessed_X, y
 
-    def rename_files(self, directory, label, name):
+    def rename_files(self, directory, name):
         """
         Description
         -----------
             Renames all files in the specified directory to a new name with incremental numbers.
-
-        Parameters-
+        Parameters
         ----------
             directory (str): Path of the directory containing the files to be renamed.
             Defaults to current working directory if not provided.
 
             name (str): New name for the files. Raises ValueError if not provided.
-
           Raises
           ------
             FileNotFoundError: If source directory does not exist.
             ValueError: If the target file name was not provided.
           """
-
-        if not os.path.exists(directory):
+        directory = Path(directory)
+        if not directory.exists():
             raise FileNotFoundError('Source directory does not exist.')
         if not name:
             raise ValueError('Target file name was not provided.')
-        for i, entry in enumerate(os.listdir(directory), start=1):
-            # for each file in the directory, enumerate and rename with the new
-            # name and incremental numbers.
-            orig_name: str = os.path.join(directory, entry)
-            new_name: str = os.path.join(
-                directory, '{}_{}_{}.png'.format(label, name, i))
-            os.rename(orig_name, new_name)  # rename the file to the new name.
-            # print the original file name.
-            print('Renamed file - {} to {}'.format(entry,
-                  os.path.basename(new_name)))
-        print('\tAll Files Renamed')  # print once all files have been renamed.
+        for i, file in enumerate(directory.iterdir(), start=1):
+            if not file.is_file():
+                continue
+            orig_name = file.name
+            new_name = f'{name}_{i}{file.suffix}'
+            file.rename(directory / new_name)
+            print('Renamed file - "{}"\tto\t"{}"'.format(orig_name, new_name))
+        print('\tAll Files Renamed')
 
     def check_dataset_images_integrity(self, directory='') -> list:
         """

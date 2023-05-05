@@ -21,24 +21,24 @@ import os
 class DataGenerator(utils.Sequence):
     def __init__(self, image_paths, labels, batch_size, image_shape, shuffle=True, augmentation=None):
         self.image_paths = image_paths
-        self.labels = labels
-        self.batch_size = batch_size
-        self.image_shape = image_shape
+        self.labels = labels 
+        self.batch_size = batch_size 
+        self.image_shape = image_shape 
         self.shuffle = shuffle
         self.augmentation = augmentation
         self.indexes = np.arange(len(self.image_paths))
         if self.shuffle:
-            np.random.shuffle(self.indexes)
+            np.random.shuffle(self.indexes) 
 
     def __len__(self):
-        return int(np.ceil(len(self.indexes) / self.batch_size))
+        return int(np.ceil(len(self.indexes) / self.batch_size)) # number of batches
 
     def __getitem__(self, index):
         batch_indexes = self.indexes[index * self.batch_size:(index + 1) * self.batch_size]
-        batch_image_paths = [self.image_paths[i] for i in batch_indexes]
-        batch_labels = [self.labels[i] for i in batch_indexes]
-        X = np.empty((self.batch_size, *self.image_shape))
-        y = np.empty((self.batch_size), dtype=int)
+        batch_image_paths = [self.image_paths[i] for i in batch_indexes] # image paths
+        batch_labels = [self.labels[i] for i in batch_indexes] # one-hot encoded labels
+        X = np.empty((self.batch_size, *self.image_shape)) # unpack self.image_shape
+        y = np.empty((self.batch_size), dtype=int) 
 
         for i, image_path in enumerate(batch_image_paths):
             image = cv2.imread(image_path)

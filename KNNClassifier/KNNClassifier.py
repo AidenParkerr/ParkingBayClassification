@@ -7,8 +7,6 @@ from pathlib import Path
 from matplotlib import (pyplot as plt, colors)
 from scipy.spatial import (Voronoi, voronoi_plot_2d)
 from sklearn import (model_selection, metrics, decomposition, neighbors)
-""" The below import sequenceis critical for finding the HelperFiles directoy.. i dont know why but it works."""
-
 
 class KNNClassifier():
     def __init__(self, X, y, flag, n_neighbors=1) -> None:
@@ -127,6 +125,29 @@ class KNNClassifier():
         return cm
 
     def compute_accuracy(self, cm):
+        """
+        Description
+        -----------
+            Compute the accuracy value given a confusion matrix.
+
+        Accuracy is a measure of a model's ability to correctly identify both true positives and true negatives.
+        It is calculated as the ratio of the sum of true positives and true negatives to the sum of all elements
+        in the confusion matrix.
+
+        Parameters
+        ----------
+        cm (array-like 2-Dim): A 2-dimensional NumPy array representing the confusion matrix.
+
+        Returns
+        -------
+        accuracy (float): The computed accuracy value.
+
+        Raises
+        ------
+        TypeError: If the provided confusion matrix is not a 2-dimensional NumPy array.
+        """
+        if not (isinstance(cm, np.ndarray) and cm.ndim == 2):
+            raise TypeError(f'Expected 2-Dim array-like, got {cm = }')
         tn = cm[0][0]
         fn = cm[0][1]
         tp = cm[1][1]
@@ -135,25 +156,113 @@ class KNNClassifier():
         return accuracy
 
     def compute_precision(self, cm):
+        """
+        Description
+        -----------
+            Compute the precision value given a confusion matrix.
+
+        Precision is a measure of a model's ability to correctly identify true positives.
+        It is calculated as the ratio of true positives to the sum of true positives and false positives.
+
+        Parameters
+        ----------
+        cm (array-like 2-Dim): A 2-dimensional NumPy array representing the confusion matrix.
+
+        Returns
+        -------
+        precision (float): The computed precision value.
+
+        Raises
+        ------
+        TypeError: If the provided confusion matrix is not a 2-dimensional NumPy array.
+        """
+        if not (isinstance(cm, np.ndarray) and cm.ndim == 2):
+            raise TypeError(f'Expected 2-Dim array-like, got {cm = }')
         tp = cm[1][1]
         fp = cm[1][0]
         precision = tp / (tp + fp)
         return precision
 
     def compute_recall(self, cm):
+        """
+        Description
+        -----------
+            Compute the recall value given a confusion matrix.
+
+        Recall is a measure of a model's ability to correctly identify true positives.
+        It is calculated as the ratio of true positives to the sum of true positives and false negatives.
+
+        Parameters
+        ----------
+        cm (array-like 2-Dim): A 2-dimensional NumPy array representing the confusion matrix.
+
+        Returns
+        -------
+        recall (float): The computed recall value.
+
+        Raises
+        ------
+        TypeError: If the provided confusion matrix is not a 2-dimensional NumPy array.
+        """
+        if not (isinstance(cm, np.ndarray) and cm.ndim == 2):
+            raise TypeError(f'Expected 2-Dim array-like, got {cm = }')
+
         fn = cm[0][1]
         tp = cm[1][1]
         recall = tp / (tp + fn)
         return recall
 
     def compute_f1(self, precision, recall):
+        """
+        Description
+        -----------
+            Compute the F1 score given precision and recall values.
+
+        The F1 score is a measure of a model's accuracy, combining both precision and recall.
+        It is calculated as the harmonic mean of precision and recall.
+
+        Parameters
+        ----------
+        precision (float or int): The precision value of the model (true positives / (true positives + false positives)).
+        recall (float or int): The recall value of the model (true positives / (true positives + false negatives)).
+
+        Returns
+        -------
+        f1 (float): The computed F1 score.
+
+        Raises
+        ------
+        TypeError
+            If the provided precision or recall values are not of type float or int.
+        """
+        if not (
+            isinstance(
+                precision, (float, int)) and isinstance(
+                recall, (float, int))):
+            raise TypeError(
+                f'Expected numerical value, got {precision = } {recall = } ')
+
         f1 = 2 * ((precision * recall) / (precision + recall))
         return f1
 
     def create_barchart(self, metric_labels, performance_metrics, fold):
+        """
+        Description
+        -----------
+            Create a bar chart to visualize the performance metrics of a k-nearest neighbor model.
+
+        This function generates a bar chart displaying the performance metrics for a k-nearest neighbor
+        model for a specific fold in a cross-validation process. The chart is saved as a PNG file
+        in a specified directory.
+
+        Parameters
+        ----------
+        metric_labels (array-like): A list of strings containing the labels for the performance metrics.
+        performance_metrics (array-like): A list of floats containing the values of the performance metrics.
+        fold (int): The index of the current fold in a cross-validation process.
+        """
         plt.bar(metric_labels, performance_metrics)
-        plt.title(
-            f'{self.n_neighbors}-Nearest Neighbor Performance Metrics for Fold #{fold}')
+        plt.title(f'k-Nearest Neighbor Performance Metrics for Fold #{fold}')
         plt.xlabel('Performance Metrics')
         plt.ylabel('Metric Value')
 
@@ -162,7 +271,7 @@ class KNNClassifier():
         barchart_dir.mkdir(parents=True, exist_ok=True)
         plt.savefig(
             barchart_dir /
-            f'Performance Metrics Bar Charts for Fold #{fold}.png')
+            f'Performance Metrics Bar Chart for Fold #{fold}.png')
         plt.show()
 
     def create_feature_space_graph(self, X_true, y_true, y_pred, labels, fold):
@@ -400,6 +509,7 @@ class KNNClassifier():
         """====================================================================
         *****************   MAIN ENTRY POINT TO THE PROGRAM   *****************
         ===================================================================="""
+
         self.n_neighbors = self.find_best_params()
         if self.n_neighbors is None:
             print('Best value for `n_neighbors` was not retrieved. Using default (1).')

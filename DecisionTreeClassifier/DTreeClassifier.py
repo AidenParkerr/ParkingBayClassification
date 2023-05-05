@@ -1,16 +1,15 @@
-from sklearn import (model_selection, tree, metrics)
 import cv2
 import time
 import numpy as np
-import seaborn as sns
 import pandas as pd
-import matplotlib.pyplot as plt
-"""The below is critical for finding the HelperFiles directoy.. i dont know why but it works."""
+import seaborn as sns
 from pathlib import Path
+import matplotlib.pyplot as plt
+from sklearn import (model_selection, tree, metrics)
 
 
 class DTreeClassifier:
-    def __init__(self, X, y, flag, max_depth=12, seed=42):
+    def __init__(self, X, y, flag, max_depth=None, seed=42):
         """
         Description
         -----------
@@ -319,12 +318,9 @@ class DTreeClassifier:
         y (array-like): Training image labels.
         class_names (list): List of class names for the labels.
         fold (int): Fold number for cross-validation (used in the saved image filename).
-
-
-        https://mljar.com/blog/visualize-decision-tree/#:~:text=A%20Decision%20Tree%20is%20a,starting%20at%20the%20root%20node.
-        https://medium.com/codex/building-and-visualizing-decision-tree-in-python-2cfaafd8e1bb
         """
-        plt.figure(figsize=(35, 10))
+
+        plt.figure(figsize=(80, 20))
         tree.plot_tree(
             self.d_tree,
             class_names=class_names,
@@ -339,6 +335,7 @@ class DTreeClassifier:
             tree_dir / f'Full Decision Tree Visualiser for Fold #{fold}.png')
         plt.show()
 
+        plt.figure(figsize=(30, 20))
         # Create Cropped version of Tree Visualiser with depth of 3.
         tree.plot_tree(
             self.d_tree,
@@ -504,8 +501,8 @@ class DTreeClassifier:
         self.max_depth = self.find_best_params()
         if self.max_depth is None:
             print(
-                'Best value for `max_depth` was not retrieved. Using default value (12).')
-            self.max_depth = 12
+                'Best value for `max_depth` was not retrieved. Using default value `None`.')
+            self.max_depth = 14
 
         metric_labels = ['Accuracy', 'Precision', 'Recall', 'F1']
         labels = ['Unoccupied', 'Occupied']

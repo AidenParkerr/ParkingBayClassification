@@ -1,17 +1,17 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn import (metrics, model_selection)
 import tensorflow as tf
+import matplotlib.pyplot as plt
+from PIL import Image
 from keras import (
     applications,
     layers,
     models,
     optimizers,
-    callbacks, utils)
+    callbacks,
+    )
 from pathlib import Path
-
-from collections import Counter
+from sklearn import (metrics, model_selection)
 
 
 class VGG16Classifier:
@@ -28,16 +28,24 @@ class VGG16Classifier:
         self.X = X
         self.y = y
         self.flag = flag
-        if flag:
-            self.text = "Pre-Processed Data"
-        else:
-            self.text = "Original Data"
+
         self.current_dir = Path(__file__).parent
         self.weights_file_path: Path = self.current_dir / "best_performing_weights.h5"
         self.image_width, self.image_height = image_width, image_height
         self.epochs: int = epochs
         self.batch_size: int = batch_size
         self.model = None
+        if flag:
+            self.text = "Pre-Processed Data"
+        else:
+            self.text = "Original Data"
+
+        if tf.config.list_physical_devices('GPU'):
+            self.device = 'GPU:0'
+            print("Using GPU")
+        else:
+            self.device = 'CPU:0'
+            print("Using CPU")
 
     def compute_accuracy(self, cm):
         """
@@ -291,7 +299,8 @@ class VGG16Classifier:
         x = vgg_model.output
         x = layers.GlobalAveragePooling2D()(x)
         x = layers.Dense(512, activation='relu')(x)
-        x = layers.Dropout(0.5)(x)
+        # x = layers.Dropout(0.5)(x) # Saw no perforamnce improvement with this
+        # layer
         predictions = layers.Dense(1, activation='sigmoid')(x)
 
         model = models.Model(inputs=vgg_model.input, outputs=predictions)
@@ -319,7 +328,14 @@ class VGG16Classifier:
         image = image / 255.0
         return image, label
 
-    def main(self):       
+    def main(self):
+        """
+        Description
+        -----------
+            Main entry point of the classifier.
+
+        Handles the creation of the classifier, training, testing and performance evaluation
+        """
         metric_labels = ['Accuracy', 'Precision', 'Recall', 'F1']
         labels = ['Unoccupied', 'Occupied']
         folds = 5
@@ -392,7 +408,7 @@ class VGG16Classifier:
                 monitor='val_loss', patience=5, restore_best_weights=True)
             model_callbacks = [checkpoint, early_stopping,]
 
-            with tf.device('device:GPU:0'):
+            with tf.device(self.device):
                 history = self.run_classification(
                     train_dataset, val_dataset, model_callbacks)
 
@@ -486,50 +502,19 @@ class VGG16Classifier:
             f'VGG-16 - Model Performance Statistics for Fold #{fold}.png')
         plt.show()
 
-    def predict_new_images(self, X_test, y_test):
-        if self.model is None:
-            print(
-                'Model has not been loaded. Create the model and load the necessary weights file.')
+    # Function to predict the class of an image
+    def predict(self, image_path):
+        img = Image.open(image_path).resize((self.image_width, self.image_height))
+        img = np.array(img)
+        img = img / 255
+        img = np.expand_dims(img, axis=0)
 
-        # preprocessed_images = [map(self.preprocess_image, image) for image, label in zip(images, labels)]
+        with tf.device(self.device):
+            prediction = self.model.predict(img)
+            print('Prediction Score: ', prediction)
+            prediction = np.argmax(prediction)
 
-        preprocessed_images = []
-        for image, label in zip(X_test, y_test):
-            processed_img, label = self.preprocess_image(image, label)
-            preprocessed_images.append(processed_img)
-        preprocessed_images = np.stack(preprocessed_images)
-
-        print('Predicting the class for the given feature vectors..')
-        predictions = self.model.predict(preprocessed_images)
-
-        binary_preds = (predictions >= 0.5).astype(int).flatten()
-
-        self.create_conf_matrix(
-            y_test, binary_preds, labels=[
-                'Unoccupied', 'Occupied'], fold=None)
-
-        true_preds = Counter()
-        for truth, pred in zip(y_test, binary_preds):
-            if truth == pred:
-                true_preds[f'Correct Predicion for class_{truth}'] += 1
+            if prediction == 0:
+                print('Unoccupied')
             else:
-                true_preds[f'Inorrect Predicion for class_{truth}'] += 1
-
-        return true_preds
-
-    # """========================================================================
-    # *******************   TEST THE MODEL ON UNSEEN DATA    *****************
-    # ========================================================================"""
-
-    # TEST_DATASET: str = Path(CURRENT_DIR / 'test_data')
-    # X_test, y_test = HelperClass().load_files_from_dir_supervised(
-    #     TEST_DATASET, width=IMG_WIDTH, height=IMG_HEIGHT)
-
-    # predictions = classifier.predict_new_images(X_test, y_test)
-    # print('\n\t* Predictions *')
-    # for key, val in predictions.items():
-    #     if key[-1] == '1':
-    #         text = '(Occupied)'
-    #     else:
-    #         text = '(Unoccupied)'
-    #     print(f'{key} {text} : {val}')
+                print('Occupied')

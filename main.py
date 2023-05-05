@@ -7,6 +7,23 @@ from VGG16Classifier.VGG16_Classifier import VGG16Classifier
 
 
 def get_classifier(arg, X, y, flag):
+    """Returns an instance of a classifier based on the provided argument.
+
+    Parameters
+    ----------
+        arg (str): The classifier argument (v for VGG16Classifier, k for KNNClassifier, or d for DTreeClassifier).
+        X (numpy.ndarray): The feature matrix.
+        y (numpy.ndarray): The target vector.
+        flag (bool): A flag to indicate whether to print debug messages.
+
+    Returns
+    -------
+        Classifier: An instance of the specified classifier.
+
+    Raises
+    ------
+        ValueError: If the provided argument is invalid.
+    """
     if arg == 'v':
         classifier = VGG16Classifier(
             X=X,
@@ -26,6 +43,12 @@ def get_classifier(arg, X, y, flag):
 
 
 def parse_arguments():
+    """Parses command-line arguments for the machine learning image classifiers.
+
+    Returns
+    -------
+        Namespace: An object containing the parsed arguments.
+    """
     parser = argparse.ArgumentParser(
         description="Machine Learning Image Classifiers.")
     parser.add_argument(
@@ -47,32 +70,37 @@ def parse_arguments():
     return parser.parse_args()
 
 
+# Main Entry point of the program
 if __name__ == '__main__':
     CURRENT_DIR = Path(__file__).parent
     DATASET_DIR = CURRENT_DIR / "dataset"
     IMG_WIDTH = 128
     IMG_HEIGHT = 128
-    
+
     if not DATASET_DIR.exists():
         raise ValueError(
             f"The dataset directory `{DATASET_DIR}` does not exist.")
 
     args = parse_arguments()
-        
+
     if not args.mode:
         raise ValueError(
             "Image loading mode is required. See --help for info.")
 
     helper = HelperClass()
     if args.mode == 'o':
-        (X, y), flag = helper.load_files_from_dir_supervised(
-            DATASET_DIR, IMG_WIDTH, IMG_HEIGHT), 0
+        (X, y) = helper.load_files_from_dir_supervised(
+            DATASET_DIR, IMG_WIDTH, IMG_HEIGHT)
+        flag = 0
     elif args.mode == 'p':
-        (X, y), flag = helper.preprocess_files_from_dir(DATASET_DIR), 1
+        (X, y) = helper.preprocess_files_from_dir(DATASET_DIR)
+        flag = 1
 
     classifier = get_classifier(
         arg=args.classifier,
         X=X,
         y=y,
         flag=flag)
+    
     classifier.main()
+    
